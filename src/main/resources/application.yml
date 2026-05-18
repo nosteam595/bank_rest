@@ -24,7 +24,7 @@ spring:
         format_sql: true
 
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
+    change-log: classpath:db/migration/db.changelog-master.yaml
     enabled: true
     url: ${SPRING_LIQUIBASE_URL:${spring.datasource.url}}
     user: ${spring.datasource.username}
