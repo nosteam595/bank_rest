@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
 
   bank_rest_app:
-    image: openjdk:17-jdk-slim
+    image: eclipse-temurin:17-jre-alpine
     container_name: bank_rest_app
     ports:
       - "8080:8080"
@@ -26,12 +26,13 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_LIQUIBASE_URL=jdbc:postgresql://bank_rest_db:5432/bank_db
+      - CARD_SECRET_KEY=MySuperSecretBankKey32Characterrs
     depends_on:
       - bank_rest_db
-    # volumes:
-    #   - ./target/bank_rest-0.0.1-SNAPSHOT.jar:/app/app.jar
-    # working_dir: /app
-    # command: java -jar app.jar
+    volumes:
+      - ./target/bank_rest-0.0.1-SNAPSHOT.jar:/app/app.jar
+    working_dir: /app
+    command: java -jar app.jar
 
 volumes:
   pgdata:

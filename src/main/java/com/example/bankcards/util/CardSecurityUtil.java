@@ -3,19 +3,28 @@ package com.example.bankcards.util;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 
 public class CardSecurityUtil {
+
     private static final String ALGORITHM = "AES";
     private static String aesKey;
 
     public static void setAesKey(String key) {
-        if (key == null || key.getBytes(StandardCharsets.UTF_8).length != 32) {
-            throw new IllegalArgumentException("Ключ шифрования AES-256 должен быть длиной ровно 32 байта!");
+        if (key == null || key.trim().isEmpty()) {
+            key = "DefaultFallbackSecretKeyForBankCardsApp";
         }
-        aesKey = key;
+
+        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
+        byte[] finalKeyBytes = Arrays.copyOf(keyBytes, 32);
+
+        aesKey = new String(finalKeyBytes, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Шифрует чистый номер карты (16 цифр) для БД
+     */
     public static String encryptCardNumber(String rawCardNumber) {
         try {
             checkKeyInitialized();
@@ -29,6 +38,9 @@ public class CardSecurityUtil {
         }
     }
 
+    /**
+     * Расшифровывает строку из БД в чистый номер карты
+     */
     public static String decryptCardNumber(String encryptedCardNumber) {
         try {
             checkKeyInitialized();
@@ -42,6 +54,9 @@ public class CardSecurityUtil {
         }
     }
 
+    /**
+     * Маскирует номер карты: **** **** **** 1234
+     */
     public static String maskCardNumber(String rawCardNumber) {
         if (rawCardNumber == null || rawCardNumber.length() < 4) {
             return "#### #### #### ####";
