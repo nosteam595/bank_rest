@@ -44,10 +44,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/cards/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/cards/*/status").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/cards/all").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PATCH,"/api/v1/admin/**").hasAuthority("ROLE_ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/cards/my").hasAuthority("ROLE_USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/cards/my/block/**").hasAuthority("ROLE_USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/cards/my/transfer").hasAuthority("ROLE_USER")
+
+
 
                         .anyRequest().authenticated()
                 )

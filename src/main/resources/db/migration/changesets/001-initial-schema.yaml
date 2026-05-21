@@ -31,6 +31,12 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     unique: true
+              - column:
+                  name: status
+                  type: varchar(20)
+                  defaultValue: 'ACTIVE'
+                  constraints:
+                    nullable: false
 
         - createTable:
             tableName: user_roles
@@ -99,3 +105,41 @@ databaseChangeLog:
             referencedColumnNames: id
             constraintName: fk_cards_user
             onDelete: RESTRICT
+
+        - addPrimaryKey:
+            tableName: user_roles
+            columnNames: user_id, role_name
+            constraintName: pk_user_roles
+
+  - changeSet:
+      id: 2-insert-default-users
+      author: bank_developer
+      comment: Добавление администратора и пользователя по умолчанию
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, valueNumeric: 1 }
+              - column: { name: username, value: 'admin' }
+              - column: { name: password, value: '$2a$10$Sg.evAa4iTKxpAvPM.tU.ubiURC2bsIbL3MX27TK96BXn.uV5o96.' }
+              - column: { name: email, value: 'admin@example.com' }
+              - column: { name: status, value: 'ACTIVE' }
+        - insert:
+            tableName: user_roles
+            columns:
+              - column: { name: user_id, valueNumeric: 1 }
+              - column: { name: role_name, value: 'ROLE_ADMIN' }
+
+        - insert:
+            tableName: users
+            columns:
+              - column: { name: id, valueNumeric: 2 }
+              - column: { name: username, value: 'user1' }
+              - column: { name: password, value: '$2a$10$UClAynj6Ntw.U9mf64KlTO0gDwBD1Hx1F8RqwflXKA2ihs0UZhQ9O' }
+              - column: { name: email, value: 'user1@example.com' }
+              - column: { name: status, value: 'ACTIVE' }
+        - insert:
+            tableName: user_roles
+            columns:
+              - column: { name: user_id, valueNumeric: 2 }
+              - column: { name: role_name, value: 'ROLE_USER' }

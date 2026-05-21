@@ -12,6 +12,7 @@ import com.example.bankcards.exception.BadRequestException;
 import com.example.bankcards.exception.ResourceNotFoundException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.UserRepository;
+import com.example.bankcards.util.UserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -87,6 +88,10 @@ public class CardService {
     @Transactional(rollbackFor = Exception.class)
     public void transferBetweenOwnCards(TransferRequest request) {
         User currentUser = getCurrentUser();
+
+        if (getCurrentUser().getStatus().equals(UserStatus.BLOCKED)) {
+            throw new BadRequestException("Операции приостановлены из-за блокировки аккаунта");
+        }
 
         if (request.fromCardId().equals(request.toCardId())) {
             throw new BadRequestException("Нельзя совершить перевод на ту же самую карту");

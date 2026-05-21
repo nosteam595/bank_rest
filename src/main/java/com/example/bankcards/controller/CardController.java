@@ -45,7 +45,6 @@ public class CardController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/my")
     public ResponseEntity<Page<CardResponse>> getMyCards(Pageable pageable) {
         return ResponseEntity.ok(cardService.getMyCards(pageable));

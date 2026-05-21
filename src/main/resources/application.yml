@@ -36,7 +36,7 @@ application:
       secret: ${JWT_SECRET_KEY:U3VwZXJTZWNyZXRLZXlGb3JCYW5rQ2FyZHNBcHBsaWNhdGlvbjIwMjY=}
       expirationMs: 8640000000
     card:
-      secret: ${CARD_SECRET_KEY:YmFua2NhcmRzX3NlY3JldF9rZXlfZm9yX2Flc18yNTZfYml0XzIwMjY=}
+      secret: ${CARD_SECRET_KEY:bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfYWVzXzI1Ng==}
 
 springdoc:
   api-docs:

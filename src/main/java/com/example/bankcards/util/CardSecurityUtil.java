@@ -11,14 +11,8 @@ public class CardSecurityUtil {
     private static byte[] secretKeyBytes;
 
     public static void setAesKey(byte[] keyBytes) {
-        if (keyBytes == null || keyBytes.length == 0) {
-            secretKeyBytes = "DefaultFallbackSecretKeyForBankC".getBytes(StandardCharsets.UTF_8);
-            return;
-        }
-
-        if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
-            throw new IllegalArgumentException("Размер ключа AES должен быть 16, 24 или 32 байта. Получено: "
-                    + keyBytes.length);
+        if (keyBytes == null || keyBytes.length != 32) {
+            throw new IllegalArgumentException("Ключ AES-256 должен быть строго 32 байта!");
         }
         secretKeyBytes = keyBytes;
     }

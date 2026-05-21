@@ -1,9 +1,11 @@
 package com.example.bankcards.entity;
 
 import com.example.bankcards.util.Role;
+import com.example.bankcards.util.UserStatus;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import static com.example.bankcards.util.UserStatus.*;
 
 @Entity
 @Table(name = "users")
@@ -31,7 +33,12 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Card> cards = new HashSet<>();
 
-    public User() {}
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserStatus status = ACTIVE;
+
+    public User() {
+    }
 
     public Long getId() {
         return id;
@@ -79,5 +86,13 @@ public class User {
 
     public void setCards(Set<Card> cards) {
         this.cards = cards;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 }

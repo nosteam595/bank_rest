@@ -4,6 +4,9 @@ import com.example.bankcards.util.CardSecurityUtil;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 @Configuration
@@ -14,7 +17,17 @@ public class CardSecurityConfig {
 
     @PostConstruct
     public void init() {
-        byte[] decodedKey = Base64.getDecoder().decode(cardSecretKey);
-        CardSecurityUtil.setAesKey(decodedKey);
+        byte[] finalKey;
+        try {
+            finalKey = Base64.getDecoder().decode(cardSecretKey.trim());
+        } catch (IllegalArgumentException e) {
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                finalKey = digest.digest(cardSecretKey.getBytes(StandardCharsets.UTF_8));
+            } catch (NoSuchAlgorithmException ex) {
+                throw new RuntimeException("Критическая ошибка: SHA-256 недоступен", ex);
+            }
+        }
+        CardSecurityUtil.setAesKey(finalKey);
     }
 }
