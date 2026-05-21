@@ -3,23 +3,24 @@ package com.example.bankcards.util;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Base64;
 
 public class CardSecurityUtil {
 
     private static final String ALGORITHM = "AES";
-    private static String aesKey;
+    private static byte[] secretKeyBytes;
 
-    public static void setAesKey(String key) {
-        if (key == null || key.trim().isEmpty()) {
-            key = "DefaultFallbackSecretKeyForBankCardsApp";
+    public static void setAesKey(byte[] keyBytes) {
+        if (keyBytes == null || keyBytes.length == 0) {
+            secretKeyBytes = "DefaultFallbackSecretKeyForBankC".getBytes(StandardCharsets.UTF_8);
+            return;
         }
 
-        byte[] keyBytes = key.getBytes(StandardCharsets.UTF_8);
-        byte[] finalKeyBytes = Arrays.copyOf(keyBytes, 32);
-
-        aesKey = new String(finalKeyBytes, StandardCharsets.UTF_8);
+        if (keyBytes.length != 16 && keyBytes.length != 24 && keyBytes.length != 32) {
+            throw new IllegalArgumentException("Размер ключа AES должен быть 16, 24 или 32 байта. Получено: "
+                    + keyBytes.length);
+        }
+        secretKeyBytes = keyBytes;
     }
 
     /**
@@ -28,7 +29,7 @@ public class CardSecurityUtil {
     public static String encryptCardNumber(String rawCardNumber) {
         try {
             checkKeyInitialized();
-            SecretKeySpec secretKey = new SecretKeySpec(aesKey.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            SecretKeySpec secretKey = new SecretKeySpec(secretKeyBytes, ALGORITHM);
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             byte[] encryptedBytes = cipher.doFinal(rawCardNumber.getBytes(StandardCharsets.UTF_8));
@@ -44,7 +45,7 @@ public class CardSecurityUtil {
     public static String decryptCardNumber(String encryptedCardNumber) {
         try {
             checkKeyInitialized();
-            SecretKeySpec secretKey = new SecretKeySpec(aesKey.getBytes(StandardCharsets.UTF_8), ALGORITHM);
+            SecretKeySpec secretKey = new SecretKeySpec(secretKeyBytes, ALGORITHM);
             Cipher cipher = Cipher.getInstance(ALGORITHM);
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedCardNumber));
@@ -66,7 +67,7 @@ public class CardSecurityUtil {
     }
 
     private static void checkKeyInitialized() {
-        if (aesKey == null) {
+        if (secretKeyBytes == null) {
             throw new IllegalStateException("CardSecurityUtil не инициализирован! Ключ шифрования отсутствует.");
         }
     }

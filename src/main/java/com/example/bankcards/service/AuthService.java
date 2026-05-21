@@ -6,7 +6,9 @@ import com.example.bankcards.entity.User;
 import com.example.bankcards.exception.BadRequestException;
 import com.example.bankcards.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,12 +38,18 @@ public class AuthService {
     @Transactional
     public AuthResponse authenticate(AuthRequest request) {
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password())
-        );
-
         User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new BadRequestException("Неверное имя пользователя или пароль"));
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
+            );
+        } catch (BadCredentialsException e) {
+            throw new BadRequestException("Неверное имя пользователя или пароль");
+        } catch (AuthenticationException e) {
+            throw new BadRequestException("Ошибка аутентификации: " + e.getMessage());
+        }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
 
@@ -51,6 +59,6 @@ public class AuthService {
 
         String jwtToken = jwtService.generateToken(userDetails, Map.of("roles", priorityRole));
 
-        return new AuthResponse(jwtToken, user.getUsername(), priorityRole);
+        return new AuthResponse(user.getUsername(), jwtToken, priorityRole);
     }
 }
