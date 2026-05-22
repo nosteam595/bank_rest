@@ -1,1 +1,391 @@
-# Здесь будет OpenAPI описание всех доступных эндпоинтов и моделей данных.
+openapi: 3.0.1
+info:
+  title: Bank Cards REST API
+  description: Backend-приложение на Spring Boot для управления банковскими картами
+  version: "1.0"
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+security:
+- bearerAuth: []
+tags:
+- name: Управление картами
+  description: Операции над картами
+paths:
+  /api/v1/cards:
+    post:
+      tags:
+      - Управление картами
+      summary: Создание карты администратором
+      description: Возвращает информацию о карте
+      operationId: createCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardCreateRequest'
+        required: true
+      responses:
+        "201":
+          description: Успешное создание карты
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+  /api/v1/cards/my/transfer:
+    post:
+      tags:
+      - Управление картами
+      summary: Перевод средств между картами пользователя
+      description: Возвращает текстовое сообщение об успешном завершении операции
+      operationId: transferBetweenOwnCards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+        required: true
+      responses:
+        "200":
+          description: Операция успешна
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/v1/cards/my/block/{id}:
+    post:
+      tags:
+      - Управление картами
+      summary: Блокировка карты пользователем
+      description: Возвращает информацию о заблокированной карте
+      operationId: userBlockCard
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Успешная блокировка карты
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+  /api/v1/auth/login:
+    post:
+      tags:
+      - auth-controller
+      summary: Авторизация пользователей
+      description: "Возвращает информацию о пользователе: имя, токен, роль"
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+        required: true
+      responses:
+        "200":
+          description: Успешная авторизация
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /api/v1/cards/{id}/status:
+    patch:
+      tags:
+      - Управление картами
+      summary: Изменение статуса карты администратором
+      description: Возвращает информацию о статусе карте
+      operationId: updateCardStatus
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardStatusUpdateRequest'
+        required: true
+      responses:
+        "200":
+          description: Успешное изменение статуса карты
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CardResponse'
+  /api/v1/admin/users/{id}/status:
+    patch:
+      tags:
+      - admin-user-controller
+      summary: Блокировка/разблокировка пользователей администратором
+      description: "Возвращает информацию о статусе пользователя: ACTIVE или BLOCKED"
+      operationId: changeUserStatus
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор пользователя
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserStatusUpdateRequest'
+        required: true
+      responses:
+        "200":
+          description: Успешная смена статуса
+          content:
+            '*/*':
+              schema:
+                type: string
+  /api/v1/cards/my:
+    get:
+      tags:
+      - Управление картами
+      summary: Просмотр карт пользователем
+      description: Возвращает список карт текущего авторизованного пользователя с
+        пагинацией
+      operationId: getMyCards
+      responses:
+        "200":
+          description: Успешное получение списка
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageCardResponse'
+  /api/v1/cards/all:
+    get:
+      tags:
+      - Управление картами
+      summary: Просмотр всех карт администратором
+      description: Возвращает список всех существующих карт с пагинацией
+      operationId: getAllCards
+      responses:
+        "200":
+          description: Успешное получение списка
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PageCardResponse'
+  /api/v1/cards/{id}:
+    delete:
+      tags:
+      - Управление картами
+      summary: Удаление карты администратором
+      description: Возвращает статус 204
+      operationId: deleteCard
+      parameters:
+      - name: id
+        in: path
+        description: Идентификатор карты
+        required: true
+        schema:
+          type: integer
+      responses:
+        "204":
+          description: Успешное удаление карты
+components:
+  schemas:
+    CardCreateRequest:
+      required:
+      - cardNumber
+      - expirationDate
+      - initialBalance
+      - userId
+      type: object
+      properties:
+        userId:
+          type: integer
+          description: ID пользователя
+          format: int64
+          example: 1
+        cardNumber:
+          pattern: "^\\d{16}$"
+          type: string
+          description: Номер новой карты
+          example: "0711150127193831"
+        expirationDate:
+          pattern: "^(0[1-9]|1[0-2])/\\d{2}$"
+          type: string
+          description: Срок действия карты
+          example: 11/27
+        initialBalance:
+          type: number
+          description: Начальный баланс карты
+          example: 5000
+    CardResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        maskedCardNumber:
+          type: string
+        expirationDate:
+          type: string
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - BLOCKED
+          - EXPIRED
+        initialBalance:
+          type: number
+    TransferRequest:
+      required:
+      - amount
+      - fromCardId
+      - toCardId
+      type: object
+      properties:
+        fromCardId:
+          type: integer
+          description: ID карты списания
+          format: int64
+          example: 1
+        toCardId:
+          type: integer
+          description: ID карты зачисления
+          format: int64
+          example: 2
+        amount:
+          minimum: 0.01
+          exclusiveMinimum: false
+          minLength: 1
+          type: number
+          description: Сумма перевода
+          example: 500.0
+      description: Запрос на перевод средств между картами
+    AuthRequest:
+      required:
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+          description: Имя пользователя
+          example: user1
+        password:
+          type: string
+          description: Пароль пользователя
+          example: user123
+    AuthResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        token:
+          type: string
+        role:
+          type: string
+    CardStatusUpdateRequest:
+      required:
+      - status
+      type: object
+      properties:
+        status:
+          type: string
+          description: Статус карты
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - BLOCKED
+          - EXPIRED
+    UserStatusUpdateRequest:
+      required:
+      - status
+      type: object
+      properties:
+        status:
+          type: string
+          description: Статус пользователя
+          example: ACTIVE
+          enum:
+          - ACTIVE
+          - BLOCKED
+    PageCardResponse:
+      type: object
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+        last:
+          type: boolean
+        pageable:
+          $ref: '#/components/schemas/PageableObject'
+        first:
+          type: boolean
+        numberOfElements:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardResponse'
+        number:
+          type: integer
+          format: int32
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortObject'
+        empty:
+          type: boolean
+    PageableObject:
+      type: object
+      properties:
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        paged:
+          type: boolean
+        unpaged:
+          type: boolean
+        offset:
+          type: integer
+          format: int64
+        sort:
+          type: array
+          items:
+            $ref: '#/components/schemas/SortObject'
+    SortObject:
+      type: object
+      properties:
+        direction:
+          type: string
+        nullHandling:
+          type: string
+        ascending:
+          type: boolean
+        property:
+          type: string
+        ignoreCase:
+          type: boolean
+  securitySchemes:
+    bearerAuth:
+      type: http
+      name: bearerAuth
+      scheme: bearer
+      bearerFormat: JWT
