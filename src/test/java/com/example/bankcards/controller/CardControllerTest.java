@@ -8,6 +8,7 @@ import com.example.bankcards.service.CardService;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -57,7 +58,8 @@ class CardControllerTest {
     }
 
     @Test
-    void createCardTest() throws Exception {
+    @DisplayName("Запрос на создание карты администратором")
+    void createCardRequestTest() throws Exception {
         when(cardService.createCard(any(CardCreateRequest.class))).thenReturn(CARD_RESPONSE);
 
         mockMvc.perform(post("/api/v1/cards")
@@ -68,7 +70,8 @@ class CardControllerTest {
     }
 
     @Test
-    void updateCardStatusTest() throws Exception {
+    @DisplayName("Запрос на изменение статуса карты администратором")
+    void updateCardStatusRequestTest() throws Exception {
         when(cardService.updateCardStatus(eq(ID), any(CardStatusUpdateRequest.class))).thenReturn(CARD_RESPONSE);
 
         mockMvc.perform(patch("/api/v1/cards/{id}/status", ID)
@@ -79,7 +82,8 @@ class CardControllerTest {
     }
 
     @Test
-    void getAllCardsTest() throws Exception {
+    @DisplayName("Запрос на просмотр всех карт администратором")
+    void getAllCardsRequestTest() throws Exception {
         Page<CardResponse> page = new PageImpl<>(Collections.singletonList(CARD_RESPONSE));
         when(cardService.getAllCards(any())).thenReturn(page);
 
@@ -91,7 +95,8 @@ class CardControllerTest {
     }
 
     @Test
-    void deleteCardTest() throws Exception {
+    @DisplayName("Запрос на удаление карты администратором")
+    void deleteCardRequestTest() throws Exception {
         doNothing().when(cardService).deleteCard(ID);
 
         mockMvc.perform(delete("/api/v1/cards/{id}", ID))
@@ -99,7 +104,8 @@ class CardControllerTest {
     }
 
     @Test
-    void getMyCardsTest() throws Exception {
+    @DisplayName("Запрос на просмотр доступных карт пользователем")
+    void getMyCardsRequestTest() throws Exception {
         Page<CardResponse> page = new PageImpl<>(Collections.singletonList(CARD_RESPONSE));
         when(cardService.getMyCards(any())).thenReturn(page);
 
@@ -111,7 +117,8 @@ class CardControllerTest {
     }
 
     @Test
-    void userBlockCardTest() throws Exception {
+    @DisplayName("Запрос на блокировку карты пользователем")
+    void userBlockCardRequestTest() throws Exception {
         when(cardService.requestBlockCard(ID)).thenReturn(CARD_RESPONSE);
 
         mockMvc.perform(post("/api/v1/cards/my/block/{id}", ID))
@@ -120,7 +127,8 @@ class CardControllerTest {
     }
 
     @Test
-    void transferBetweenOwnCardsTest() throws Exception {
+    @DisplayName("Запрос на перевод средства между картами пользователя")
+    void transferBetweenOwnCardsRequestTest() throws Exception {
         doNothing().when(cardService).transferBetweenOwnCards(any(TransferRequest.class));
 
         mockMvc.perform(post("/api/v1/cards/my/transfer")
