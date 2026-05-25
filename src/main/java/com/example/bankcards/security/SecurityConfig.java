@@ -56,8 +56,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/cards/my/block/**").hasAuthority("ROLE_USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/cards/my/transfer").hasAuthority("ROLE_USER")
 
-
-
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

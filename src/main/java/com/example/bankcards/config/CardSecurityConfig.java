@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import static com.example.bankcards.util.AppConstants.MESSAGE_DIGEST_ALGORITHM;
 
 @Configuration
 public class CardSecurityConfig {
@@ -22,7 +23,7 @@ public class CardSecurityConfig {
             finalKey = Base64.getDecoder().decode(cardSecretKey.trim());
         } catch (IllegalArgumentException e) {
             try {
-                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                MessageDigest digest = MessageDigest.getInstance(MESSAGE_DIGEST_ALGORITHM);
                 finalKey = digest.digest(cardSecretKey.getBytes(StandardCharsets.UTF_8));
             } catch (NoSuchAlgorithmException ex) {
                 throw new RuntimeException("Критическая ошибка: SHA-256 недоступен", ex);

@@ -17,9 +17,6 @@ public class CardSecurityUtil {
         secretKeyBytes = keyBytes;
     }
 
-    /**
-     * Шифрует чистый номер карты (16 цифр) для БД
-     */
     public static String encryptCardNumber(String rawCardNumber) {
         try {
             checkKeyInitialized();
@@ -33,9 +30,6 @@ public class CardSecurityUtil {
         }
     }
 
-    /**
-     * Расшифровывает строку из БД в чистый номер карты
-     */
     public static String decryptCardNumber(String encryptedCardNumber) {
         try {
             checkKeyInitialized();
@@ -49,9 +43,6 @@ public class CardSecurityUtil {
         }
     }
 
-    /**
-     * Маскирует номер карты: **** **** **** 1234
-     */
     public static String maskCardNumber(String rawCardNumber) {
         if (rawCardNumber == null || rawCardNumber.length() < 4) {
             return "#### #### #### ####";
